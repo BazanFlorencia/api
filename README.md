@@ -2,6 +2,10 @@ Formas de interactuar con la API
     
     Se coloca entre llaves lo que se debe reemplazar por un valor determinado (las llaves son sólo para separar esos términos, deben quitarse).
 
+Importar la base de datos
+
+    Importar desde PHPMyAdmin (o cualquiera) database/lista_productos.php
+
 Prueba con postman
 
     El endpoint de la API es: http://localhost/web2/tpe-Parte2/api/products
