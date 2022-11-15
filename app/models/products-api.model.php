@@ -8,6 +8,19 @@ class ProductsApiModel{
         $this->db = new PDO('mysql:host=Localhost;'.'dbname=db_productos;charset=utf8','root','');
     }
 
+    public function getColumnsOfTable(){
+        $query = $this -> db -> prepare("SHOW COLUMNS FROM lista_productos");
+        $query -> execute();
+        $columns = $query -> fetchAll(PDO::FETCH_OBJ);
+        return $columns;
+    }
+    public function getNumColumns($columns){
+        $query = $this -> db -> prepare('SELECT count(*) as quantity FROM ?');
+        $query -> execute([$columns]);
+        $quantity = $query -> fetchObject()->quantity;
+        return $quantity;
+    }
+
     //MOSTRAR TODOS LOS PRODUCTOS
     public function getAll(){
         $query = $this -> db -> prepare('SELECT lista_productos.*, categorias.tipo_producto as categoria FROM lista_productos INNER JOIN categorias ON lista_productos.id_categoria=categorias.id_categoria');

@@ -7,6 +7,7 @@ class ProductsApiController{
     private $modelProduct;
     private $viewProduct;
     private $data;
+    private $nameColumnsTables = ['id_producto', 'nombre_producto'. 'precio', 'id_categoria', 'tipo_producto'];
 
     public function __construct(){
         $this->modelProduct = new ProductsApiModel();
@@ -19,8 +20,10 @@ class ProductsApiController{
     private function getData() {
         return json_decode($this->data);
     }
+    
 
     public function getProducts($params = null){
+        
         try{
             //ORDENADO ASCENDENTE POR COLUMNA 
             if (isset($_GET['sort'])&&!isset($_GET['page'])&&!isset($_GET['search'])&&!isset($_GET['limit'])){
@@ -107,7 +110,7 @@ class ProductsApiController{
                 die();
             }
             else {
-                $this->getAllProducts();
+                $this->getColumnsTable();
                 die();
             }
         } 
@@ -130,29 +133,40 @@ class ProductsApiController{
 
     //ORDENADO ASCENDENTE POR COLUMNA 
     public function getProductsOrdered($sort = null){
+        $nameColumnsTables = ['id_producto', 'nombre_producto'. 'precio', 'id_categoria', 'tipo_producto'];
         if($sort != null) {
-            $products = $this->modelProduct->getOrderedByColumn($sort);
-            $this->viewProduct->response($products, 200);
+            if (in_array($sort, $nameColumnsTables)){
+                $products = $this->modelProduct->getOrderedByColumn($sort);
+                if($products){
+                    $this->viewProduct->response($products, 200);
+                }
+                else{
+                    $this->viewProduct->response("No existe una columna $sort", 400);
+                }
+            }
+            else{
+                $this->viewProduct->response("No existe esa columna", 404);
+            }
         }
         else {
             $this->viewProduct->response("Debe completar el nombre de la columna por el que quiere ordenar", 404);
         }
     }
+
     //PAGINADO
     public function getProductsPaginated($page = null){
         if(is_numeric($page) && $page != null) {
             $limit = 5;
             $quantityProducts = $this->modelProduct->getQuantityProducts();
             if ($quantityProducts >= 0  && $page >= 0){
-                    $pages = ceil($quantityProducts/$limit);
-                    if ($page <= $pages){
-                        $productsByPage = $this->modelProduct-> productsByPage($page, $limit);
-                        $this->viewProduct->response($productsByPage, 200);
-                    }
-                    else{
-                        $this->viewProduct->response("No hay más productos que mostrar", 404);
-                    }
-                    
+                $pages = ceil($quantityProducts/$limit);
+                if ($page <= $pages){
+                    $productsByPage = $this->modelProduct-> productsByPage($page, $limit);
+                    $this->viewProduct->response($productsByPage, 200);
+                }
+                else{
+                    $this->viewProduct->response("No hay más productos que mostrar", 404);
+                }       
             }
             else {
                 $this->viewProduct->response("Ingresar un parámetro válido", 400);
@@ -162,19 +176,20 @@ class ProductsApiController{
             $this->viewProduct->response("Ingresar un parámetro válido", 404);
         } 
     }
+
     //PAGINADO CON LIMITE
     public function getProductsPaginatedWithLimit($page = null, $limit = null){
         if(is_numeric($page) && $page != null && is_numeric($limit) && $limit != null) {
             $quantityProducts = $this->modelProduct->getQuantityProducts();
             if ($quantityProducts >= 0  && $page >= 0 && $limit > 0){
                 $pages = ceil($quantityProducts/$limit);
-                    if ($page <= $pages){
-                        $productsByPage = $this->modelProduct-> productsByPageWithLimit($page, $limit);
-                        $this->viewProduct->response($productsByPage, 200);
-                    }
-                    else{
-                        $this->viewProduct->response("No hay más productos que mostrar", 404);
-                    }
+                if ($page <= $pages){
+                    $productsByPage = $this->modelProduct-> productsByPageWithLimit($page, $limit);
+                    $this->viewProduct->response($productsByPage, 200);
+                }
+                else{
+                    $this->viewProduct->response("No hay más productos que mostrar", 404);
+                }
             }
             else {
                 $this->viewProduct->response("Ingresar un parámetro válido", 404);
@@ -184,6 +199,7 @@ class ProductsApiController{
             $this->viewProduct->response("Ingresar un parámetro válido", 404);
         } 
     }
+
     //FILTRADO
     public function getProductsFiltered($search = null){
         if($search != null) {
@@ -199,64 +215,88 @@ class ProductsApiController{
             $this->viewProduct->response("Debe ingresar un parámetro de búsqueda", 404);
         }
     }
+
     //PAGINADO Y ORDENADO ASCENDENTE POR COLUMNA 
     public function getProductsPaginatedAndOrdered($sort = null, $page = null){
+        $nameColumnsTables = ['id_producto', 'nombre_producto'. 'precio', 'id_categoria', 'tipo_producto'];
         if (is_numeric($page) && $sort != null && $page != null){
-            $pages = ceil($quantityProducts/$limit);
-            if ($page <= $pages){
-                $products = $this->modelProduct->getOrderedAndPaginated($sort, $page);
-                if ($products){
-                    $this->viewProduct->response($products, 200);
+            if(in_array($sort, $nameColumnsTables)){
+                $pages = ceil($quantityProducts/$limit);
+                if ($page <= $pages){
+                    $products = $this->modelProduct->getOrderedAndPaginated($sort, $page);
+                    if ($products){
+                        $this->viewProduct->response($products, 200);
+                    }
+                    else{
+                        $this->viewProduct->response("No hay productos para mostrar", 404);
+                    }
                 }
                 else{
-                    $this->viewProduct->response("No hay productos para mostrar", 404);
+                    $this->viewProduct->response("No hay más productos que mostrar", 404);
                 }
             }
             else{
-                $this->viewProduct->response("No hay más productos que mostrar", 404);
+                $this->viewProduct->response("No existe esa columna", 404);
             }
-            
         }
         else {
             $this->viewProduct->response("Ingresar parámetros válidos", 400);
         }
     }
+    
     //PAGINADO CON LIMITE Y ORDENADO ASCENDENTE POR COLUMNA 
     public function getProductsPaginatedWithLimitAndOrdered($sort = null, $page = null, $limit = null){
+        $nameColumnsTables = ['id_producto', 'nombre_producto'. 'precio', 'id_categoria', 'tipo_producto'];
         if (is_numeric($page) && $sort != null && $page != null && $limit != null){
-            $pages = ceil($quantityProducts/$limit);
-            if ($page <= $pages){
-                $products = $this->modelProduct->getOrderedAndPaginatedWithLimit($sort, $page, $limit);
+            if (in_array($sort, $nameColumnsTables)){
+                $pages = ceil($quantityProducts/$limit);
+                if ($page <= $pages){
+                    $products = $this->modelProduct->getOrderedAndPaginatedWithLimit($sort, $page, $limit);
+                    if ($products){
+                        $this->viewProduct->response($products, 200);
+                    }
+                    else{
+                        $this->viewProduct->response("Ingresar parámetros válidos", 404);
+                    }
+                }
+                else{
+                    $this->viewProduct->response("No hay más productos que mostrar", 404);
+                }
+            }
+            else {
+                $this->viewProduct->response("No existe esa columna", 404);
+            }
+        }
+        else if (!is_numeric($page)){
+            $this->viewProduct->response("No es posible interpretar la solicitud", 400);
+        }
+        else {
+            $this->viewProduct->response("Ingresar un parámetro", 400);
+        }
+    }
+
+    //ORDENADO ASCENDENTE POR COLUMNA Y FILTRADO
+    public function getProductsOrderedAndFiltered($sort = null, $search = null){
+        $nameColumnsTables = ['id_producto', 'nombre_producto'. 'precio', 'id_categoria', 'tipo_producto'];
+        if ($sort != null && $search != null){
+            if (in_array($sort, $nameColumnsTables)){
+                $products = $this->modelProduct->getOrderedAndFiltered($sort, $search);
                 if ($products){
                     $this->viewProduct->response($products, 200);
                 }
                 else{
-                    $this->viewProduct->response("Ingresar parámetros válidos", 404);
+                    $this->viewProduct->response("No hay resultado para esa búsqueda", 404);
                 }
             }
-            else{
-                $this->viewProduct->response("No hay más productos que mostrar", 404);
+            else {
+                $this->viewProduct->response("No existe esa columna", 404);
             }
         }
         else {
             $this->viewProduct->response("Ingresar parámetros válidos", 400);
         }
     }
-    //ORDENADO ASCENDENTE POR COLUMNA Y FILTRADO
-    public function getProductsOrderedAndFiltered($sort = null, $search = null){
-        if ($sort != null && $search != null){
-            $products = $this->modelProduct->getOrderedAndFiltered($sort, $search);
-            if ($products){
-                $this->viewProduct->response($products, 200);
-            }
-            else{
-                $this->viewProduct->response("No hay resultado para esa búsqueda", 404);
-            }
-        }
-        else {
-            $this->viewProduct->response("Ingresar parámetros válidos", 400);
-        }
-    }
+
     //PAGINADO Y FILTRADO
     public function getProductsPaginatedAndFiltered($page = null, $search = null){
         if (is_numeric($page) && $page !=null && $search != null){
@@ -282,6 +322,7 @@ class ProductsApiController{
             $this->viewProduct->response("Ingresar un parámetro", 400);
         }
     }
+
     //PAGINADO CON LIMITE Y FILTRADO
     public function getProductsPaginatedWithLimitAndFiltered($page = null, $search = null, $limit = null){
         if (is_numeric($page) && $page !=null && $search != null && $limit != null && is_numeric($limit)){
@@ -306,49 +347,70 @@ class ProductsApiController{
             $this->viewProduct->response("Ingresar un parámetro", 400);
         }
     }
+
     //PRODUCTOS FILTRADOS, PAGINADOS Y ORDENADOS ASCENDENTE POR COLUMNA
     public function getProductsFilteredPaginatedAndOrdered($page = null, $search = null, $sort = null){
+        $nameColumnsTables = ['id_producto', 'nombre_producto'. 'precio', 'id_categoria', 'tipo_producto'];
         if (is_numeric($page) && $page != null && $search != null && $sort !=null){
-            $pages = ceil($quantityProducts/$limit);
-            if ($page <= $pages){
-                if (products){
-                    $products = $this->modelProduct->getFilteredPaginatedAndOrdered($page, $search, $sort);
-                    $this->viewProduct->response($products, 200);
+            if (in_array($sort, $$nameColumnsTables)){
+                $pages = ceil($quantityProducts/$limit);
+                if ($page <= $pages){
+                    if (products){
+                        $products = $this->modelProduct->getFilteredPaginatedAndOrdered($page, $search, $sort);
+                        $this->viewProduct->response($products, 200);
+                    }
+                    else{
+                        $this->viewProduct->response("No hay resultado para esa búsqueda", 404);
+                    } 
                 }
                 else{
-                    $this->viewProduct->response("No hay resultado para esa búsqueda", 404);
+                    $this->viewProduct->response("No hay más productos que mostrar", 404);
                 } 
+            }    
+            else {
+                $this->viewProduct->response("No existe esa columna", 404);
             }
-            else{
-                $this->viewProduct->response("No hay más productos que mostrar", 404);
-            }     
         }
         else if (!is_numeric($page)){
             $this->viewProduct->response("No es posible interpretar la solicitud", 400);
         }
+        else {
+            $this->viewProduct->response("Ingresar un parámetro", 400);
+        }
        
     }
+
     //PRODUCTOS FILTRADOS, PAGINADOS CON LIMITE Y ORDENADOS ASCENDENTE POR COLUMNA
     public function getProductsFilteredPaginatedWithLimitAndOrdered($page = null, $search = null, $sort = null, $limit = null){
+        $nameColumnsTables = ['id_producto', 'nombre_producto'. 'precio', 'id_categoria', 'tipo_producto'];
         if (is_numeric($page) && $page != null && $search != null && $sort !=null && $limit != null && is_numeric($limit)){
-            $pages = ceil($quantityProducts/$limit);
-            if ($page <= $pages){
-                if (products){
-                    $products = $this->modelProduct->getFilteredPaginatedWithLimitAndOrdered($page, $search, $sort, $limit);
-                    $this->viewProduct->response($products, 200);
+            if (in_array($sort, $$nameColumnsTables)){
+                $pages = ceil($quantityProducts/$limit);
+                if ($page <= $pages){
+                    if (products){
+                        $products = $this->modelProduct->getFilteredPaginatedWithLimitAndOrdered($page, $search, $sort, $limit);
+                        $this->viewProduct->response($products, 200);
+                    }
+                    else {
+                        $this->viewProduct->response("No hay resultado para esa búsqueda", 404);
+                    }      
                 }
-                else{
-                    $this->viewProduct->response("No hay resultado para esa búsqueda", 404);
-                }      
+                else {
+                    $this->viewProduct->response("No hay más productos que mostrar", 404);
+                } 
             }
-            else{
-                $this->viewProduct->response("No hay más productos que mostrar", 404);
-            } 
+            else {
+                $this->viewProduct->response("No existe esa columna", 404);
+            }
         }
         else if (!is_numeric($page)||!is_numeric($limit)){
             $this->viewProduct->response("No es posible interpretar la solicitud", 400);
         }
+        else {
+            $this->viewProduct->response("Ingresar un parámetro", 400);
+        }
     }
+
     //MOSTRAR PRODUCTO 
     public function getProduct($params = null) {
         $id = $params[':ID'];
@@ -360,6 +422,7 @@ class ProductsApiController{
             $this->viewProduct->response("El producto con el id $id no existe", 404);
         }
     }
+
     //AGREGAR PRODUCTO
     public function insertProduct($params = null) {
         $product = $this->getData();
@@ -372,6 +435,7 @@ class ProductsApiController{
             $this->viewProduct->response($product, 201);
         }
     }
+
     //ELIMINAR PRODUCTO
     public function deleteProduct($params = null) {
         $id = $params[':ID'];
