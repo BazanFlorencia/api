@@ -39,9 +39,9 @@ class ProductsApiModel{
     }
 
     //INSERTAR UN PRODUCTO
-    public function insert($name, $price, $type_product, $imagen = null){
-        $query = $this-> db -> prepare("INSERT INTO lista_productos (nombre_producto, precio, id_categoria, imagen) VALUES (?,?,?,?)");
-        $query->execute([$name, $price, $type_product, $imagen]);
+    public function insert($name, $price, $type_product){
+        $query = $this-> db -> prepare("INSERT INTO lista_productos (nombre_producto, precio, id_categoria) VALUES (?,?,?)");
+        $query->execute([$name, $price, $type_product]);
         return $this->db->lastInsertId();
     }
 

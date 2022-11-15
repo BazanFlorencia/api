@@ -110,7 +110,7 @@ class ProductsApiController{
                 die();
             }
             else {
-                $this->getColumnsTable();
+                $this->getAllProducts();
                 die();
             }
         } 
@@ -426,11 +426,11 @@ class ProductsApiController{
     //AGREGAR PRODUCTO
     public function insertProduct($params = null) {
         $product = $this->getData();
-        if (empty($product->nombre_producto)||empty($product->precio)||empty($product->id_categoria)||empty($product->imagen)) {
+        if (empty($product->nombre_producto)||empty($product->precio)||empty($product->id_categoria)) {
             $this->viewProduct->response("Complete los datos", 400);
         }
         else{
-            $id = $this->modelProduct->insert($product->nombre_producto, $product->precio, $product->id_categoria , $product->imagen);
+            $id = $this->modelProduct->insert($product->nombre_producto, $product->precio, $product->id_categoria);
             $product = $this->modelProduct->get($id);
             $this->viewProduct->response($product, 201);
         }
