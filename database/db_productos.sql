@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 15-11-2022 a las 07:13:54
+-- Tiempo de generación: 15-11-2022 a las 16:06:46
 -- Versión del servidor: 10.4.24-MariaDB
 -- Versión de PHP: 8.1.6
 
@@ -20,6 +20,31 @@ SET time_zone = "+00:00";
 --
 -- Base de datos: `db_productos`
 --
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `categorias`
+--
+
+CREATE TABLE `categorias` (
+  `id_categoria` int(11) NOT NULL,
+  `tipo_producto` varchar(100) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+--
+-- Volcado de datos para la tabla `categorias`
+--
+
+INSERT INTO `categorias` (`id_categoria`, `tipo_producto`) VALUES
+(1, 'Frutos secos'),
+(2, 'Condimentos'),
+(3, 'Harina'),
+(4, 'Cereales'),
+(5, 'Reposteria'),
+(6, 'Legumbres'),
+(7, 'Semillas'),
+(11, 'Frescos');
 
 -- --------------------------------------------------------
 
@@ -83,9 +108,36 @@ INSERT INTO `lista_productos` (`id_producto`, `nombre_producto`, `precio`, `id_c
 (81, 'Lino x 100 grs.', 65, 7, 'img/productos/634db3cfd818d.jpg'),
 (82, 'Lino x 100 grs.', 65, 7, 'img/productos/634db3cfd818d.jpg');
 
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `usuario`
+--
+
+CREATE TABLE `usuario` (
+  `id` int(11) NOT NULL,
+  `name` varchar(150) NOT NULL,
+  `email` varchar(150) NOT NULL,
+  `password` varchar(255) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+--
+-- Volcado de datos para la tabla `usuario`
+--
+
+INSERT INTO `usuario` (`id`, `name`, `email`, `password`) VALUES
+(1, 'Florencia', 'florenciabz@gmail.com', '$2a$12$M3/GzKRUUb0z9T6S/Cc0Qe7mrgtMrn8uXtgNjRyNDAdOlcmq21VAy');
+
 --
 -- Índices para tablas volcadas
 --
+
+--
+-- Indices de la tabla `categorias`
+--
+ALTER TABLE `categorias`
+  ADD PRIMARY KEY (`id_categoria`),
+  ADD KEY `id_categoria` (`id_categoria`);
 
 --
 -- Indices de la tabla `lista_productos`
@@ -95,14 +147,32 @@ ALTER TABLE `lista_productos`
   ADD KEY `id_categoria` (`id_categoria`);
 
 --
+-- Indices de la tabla `usuario`
+--
+ALTER TABLE `usuario`
+  ADD PRIMARY KEY (`id`);
+
+--
 -- AUTO_INCREMENT de las tablas volcadas
 --
+
+--
+-- AUTO_INCREMENT de la tabla `categorias`
+--
+ALTER TABLE `categorias`
+  MODIFY `id_categoria` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
 
 --
 -- AUTO_INCREMENT de la tabla `lista_productos`
 --
 ALTER TABLE `lista_productos`
   MODIFY `id_producto` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=83;
+
+--
+-- AUTO_INCREMENT de la tabla `usuario`
+--
+ALTER TABLE `usuario`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- Restricciones para tablas volcadas

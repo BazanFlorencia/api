@@ -85,12 +85,12 @@ class ProductsApiController{
                 die();
             }
             //ORDENADO ASCENDENTE POR COLUMNA, FILTRADO Y PAGINADO
-            else if (isset($_GET['sort'])&&isset($_GET['page'])&&isset($_GET['search'])&&isset($_GET['limit'])){
+            else if (isset($_GET['sort'])&&isset($_GET['page'])&&isset($_GET['search'])&&!isset($_GET['limit'])){
                 $sort = $_GET['sort'];
                 $page = $_GET['page'];
                 $search = $_GET['search'];
-                $limit = $_GET['limit'];
-                $this-> getProductsPaginatedFilteredAndOrdered($page, $search, $sort, $limit);
+                
+                $this-> getProductsFilteredPaginatedAndOrdered($page, $search, $sort);
                 die();
             }
             //USO DEL LIMIT SOLO
@@ -210,7 +210,7 @@ class ProductsApiController{
     //ORDENADO ASCENDENTE POR COLUMNA Y FILTRADO
     public function getProductsOrderedAndFiltered($sort = null, $search = null){
         if ($sort != null && $search != null){
-            $products = $this->modelProduct->getProductsOrderedAndFiltered($sort, $search);
+            $products = $this->modelProduct->getOrderedAndFiltered($sort, $search);
             if ($products){
                 $this->viewProduct->response($products, 200);
             }
@@ -260,10 +260,21 @@ class ProductsApiController{
         }
     }
     //los tres no esta funcionando
-    public function getProductsPaginatedFilteredAndOrdered($page = null, $search = null, $sort = null){
-        if ($page != null && $search != null && $sort !=null){
-            $products = $this->modelProduct->getProductsFilteredPaginatedAndOrdered($page, $search, $sort);
-            $this->viewProduct->response($products, 200);
+
+
+
+    public function getProductsFilteredPaginatedAndOrdered($page = null, $search = null, $sort = null){
+        if (is_numeric($page) && $page != null && $search != null && $sort !=null){
+            if (products){
+                $products = $this->modelProduct->getProductsFilteredPaginatedAndOrdered($page, $search, $sort);
+                $this->viewProduct->response($products, 200);
+            }
+            else{
+                $this->viewProduct->response("No hay resultado para esa búsqueda", 404);
+            }      
+        }
+        else if (!is_numeric($page)){
+            $this->viewProduct->response("No es posible interpretar la solicitud", 400);
         }
        
     }

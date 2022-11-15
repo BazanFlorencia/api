@@ -104,14 +104,14 @@ class ProductsApiModel{
     }
     //PRODUCTOS FILTRADOS, PAGINADOS Y ORDENADOS ASCENDENTE POR COLUMNA
     public function getProductsFilteredPaginatedAndOrdered($page = null, $search = null, $sort = null){
-        var_dump($sort);
         $limit = 5;
         $offset = ($page - 1) * $limit;
-        $query= $this->db->prepare("SELECT lista_productos.* , categorias.tipo_producto as categoria FROM lista_productos INNER JOIN categorias ON lista_productos.id_categoria=categorias.id_categoria WHERE nombre_producto LIKE ? precio LIKE ? OR categoria LIKE ? ORDER BY $sort LIMIT $limit OFFSET $offset");
-        $query -> execute(["%$search%","%$search%","%$search%"]);
+        $query= $this->db->prepare("SELECT * FROM lista_productos WHERE nombre_producto LIKE ? OR precio LIKE ? ORDER BY $sort LIMIT $limit OFFSET $offset");
+        $query -> execute(["%$search%","%$search%"]);
         $products = $query ->fetchAll(PDO::FETCH_OBJ);
         return $products;
     }
+
     //ELIMINAR PRODUCTO
     function delete($id) {
         $query = $this->db->prepare('DELETE FROM lista_productos WHERE id = ?');
